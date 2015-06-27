@@ -1,5 +1,7 @@
 # Quiz
 
+A WORK IN PROGRESS - IE.  Its not working yet
+
 A ClojureScript/Clojure application which presents the user with an image and then 5 choices.
 For example, a presidential deck would show a president and ask the user to choose the correct name.
 
@@ -8,11 +10,11 @@ For example, a presidential deck would show a president and ask the user to choo
 The frontend uses ClojureScript and Om and has a single atom for managing state.
 The Clojure backend uses mysql to keep track of players and their progress through a deck.
 
-I'm still explorer various ways to message between ClojureScript and Clojure, at the moment
-I'm using POST to send Edn back and forth.   I'm trying to decide if I should have a single
+I'm still exploring various ways to message between ClojureScript and Clojure, at the moment
+I'm using POST to send EDN back and forth.   I'm trying to decide if I should have a single
 message with a distinctive :type, or seperate REST endpoints for each message type.
  
-## TODO
+## To Do/Ideas
 
   - create a demo site
   
