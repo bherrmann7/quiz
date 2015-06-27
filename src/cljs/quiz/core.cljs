@@ -25,15 +25,8 @@
   (swap! app-state assoc :flash resp)
   )
 
-(defn do-check-answer [app owner]
-  (let [input (om/get-node owner "answer")
-        value (.-value input)]
-    (set! (.-value input) "")
-    (do-check-answer2 app owner value)
-    )
-  )
 
-(defn do-check-answer2 [app owner value]
+(defn do-check-answer [app owner value]
   (if (contains? #{"1" "2" "3" "4" "5"} value)
     (let [user-choices (first (rest (rest (:challenge @app-state))))
           user-pos (dec (js/parseInt value))
@@ -46,28 +39,6 @@
   )
 
 
-(defn do-next-round [app owner]
-  (let [input (om/get-node owner "answer")
-        value (.-value input)]
-    (set! (.-value input) "")
-    (if (= value "n")
-      (do
-        (swap! app-state dissoc :user-choice)
-        ;        (do-start-quiz)
-        )
-      )
-    )
-  )
-
-(defn do-check-answer3 [app owner value]
-  (if (empty? (:user-choice @app-state))
-    (do-check-answer2 app owner value)
-    (do
-      (swap! app-state dissoc :user-choice)
-      ;      (do-start-quiz)
-      )
-    )
-  )
 
 
 (defn challenge-handler [c]
@@ -88,6 +59,16 @@
                    }
                   ))
 
+(defn post-fn [path params]
+  (ajax.core/POST path
+                  {:params        params
+                   :handler       q/handler
+                   :error-handler q/error-handler
+                   :format        :raw
+                   }
+                  )
+  )
+
 (defn main []
   (om/root
     (fn [app owner]
@@ -95,10 +76,10 @@
         om/IRender
         (render [_]
           (if (:challenge app)
-            (v/quiz-page app owner)
+            (v/quiz-page app owner do-check-answer)
             (if (:user app)
               (v/loading-quiz app)
-              (v/login-page owner)
+              (v/login-page app owner post-fn)
               )
             )
           )))
