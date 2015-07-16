@@ -1,4 +1,5 @@
-(ns quiz.db-challenges-loader)
+(ns quiz.db-challenges-loader
+  (:require [quiz.config]))
 (require '[yesql.core :refer [defqueries]])
 
 (def home-dir (System/getProperty "user.home"))
@@ -10,8 +11,7 @@
               :password    (.trim (slurp (str home-dir "/bin/quiz.db.pass")))})
 
 (defn load-challenges [path]
-  (read-string (slurp path))
-  )
+  (read-string (slurp path)))
 
 (defqueries "challenges.sql")
 
@@ -19,15 +19,12 @@
   (if (empty? list)
     nil
     (let [remaining (rest (rest list))]
-      (add-challenge! db-spec (second list) (first list) )
-      (breakList remaining)
-      )
-    )
-  )
+      (add-challenge! db-spec (second list) (first list))
+      (breakList remaining))))
 
 (delete-challenges! db-spec)
 
-(breakList (load-challenges (str home-dir "/presidents/data.clj")))
+(breakList (load-challenges (str (:deck-dir quiz.config/config) "/deck.clj")))
 
 (println "records: " (challenges-query db-spec))
 (println "records loaded " (count (challenges-query db-spec)))

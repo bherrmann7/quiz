@@ -25,6 +25,7 @@
                  ]
 
   :plugins [[lein-cljsbuild "1.0.3"]
+            [lein-cljfmt "0.1.10"]
             [lein-environ "1.0.0"]]
 
   :min-lein-version "2.5.0"

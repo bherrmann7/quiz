@@ -2,81 +2,41 @@
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [ajax.core :refer [GET POST]]
-            ))
+            [quiz.utils :as u]))
 
 
 (defn choose-color [render-choice correct-choice user-choice]
-  ;    (.log js/console render-choice correct-choice user-choice  )
   (if (or (= nil user-choice) (= "" user-choice))
     "black"
     (if (= render-choice correct-choice)
       "green"
       (if (= render-choice user-choice)
         "red"
-        "black"))
-    )
-  )
-
-(defn do-login [owner post-fn]
-  (let [user-elem (om/get-node owner "username")
-        pass-elem (om/get-node owner "password")
-        user (.-value user-elem)
-        pass (.-value pass-elem)
-        ]
-    (post-fn "/send-message" [user pass])
-    ))
-
-(defn login-page [app owner post-fn]
-  (dom/div nil
-           (dom/h1 nil (:title app))
-           (dom/p nil "Login to get started")
-           (dom/br nil)
-           (dom/div #js {:style #js {:color "red"}} (:flash app))
-           (dom/label #js {:style #js {:width "150px" :display "inline-block"}} nil "username (ie. jsmith)")
-           (dom/input #js {:id "username" :type "text" :ref "username" :value "bob"})
-           (dom/br nil)
-           (dom/label #js {:style #js {:width "150px" :display "inline-block"}} "Password")
-           (dom/input #js {:type "password" :ref "password" :value "dk"})
-           (dom/br nil)
-           (dom/input #js {:type "submit" :value "Login" :onClick #(do-login owner post-fn)})
-           )
-  )
+        "black"))))
 
 
 (defn do-check-answer-click [app owner value do-check-answer]
-  (if (empty? (:user-choice app))
-    (do-check-answer app owner value)
-    (do
-      (swap! app dissoc :user-choice)
-      ;      (do-start-quiz)
-      )
-    )
-  )
+  (do-check-answer app owner value))
 
 (defn quiz-item [owner pos choices app do-check-answer]
-  (let [
-        render-choice (nth choices (dec pos))
+  (let [render-choice (nth choices (dec pos))
         correct-choice (:name (:challenge app))
-        user-choice (:user-choice app)
-        ]
-    (dom/div #js {:style   #js {:color       (choose-color render-choice correct-choice user-choice)
-                                :padding-top "8px" :padding-left "10px"
+        user-choice (:user-choice app)]
+    (dom/a #js {:className "choice" :style   #js {:color       (choose-color render-choice correct-choice user-choice)}
+                :onClick #(do-check-answer-click app owner render-choice do-check-answer)
+                :ref     (str "ans" pos)} nil render-choice)))
 
-                                }
-                  :onClick #(do-check-answer-click app owner (str pos) do-check-answer)
-                  :ref     (str "ans" pos)
-                  } nil (str pos " " (nth choices (dec pos))))
-    )
-  )
+(defn last-item [pos choices correct-choice user-choice]
+  (let [render-choice (nth choices (dec pos))]
+    (dom/div #js {:className "last" :style   #js {:color       (choose-color render-choice correct-choice user-choice)
+                                                  :padding-top "8px" :padding-left "10px"}} nil (str (nth choices (dec pos))))))
 
 
 (defn do-check-answer-keypress [app owner do-check-answer]
   (let [input (om/get-node owner "answer")
         value (.-value input)]
     (set! (.-value input) "")
-    (do-check-answer app owner value)
-    )
-  )
+    (do-check-answer app owner value)))
 
 
 (defn do-next-round [app owner]
@@ -87,50 +47,49 @@
       (do
         (swap! app dissoc :user-choice)
         ;        (do-start-quiz)
-        )
-      )
-    )
-  )
+        ))))
 
 (defn quiz-page [app owner do-check-answer]
   (let [c (:challenge app)
+        last (:last app)
         image (:image c)
-        choices (into [] (shuffle (conj (:fakes c) (:name c))))
-        ]
+        choices (:choices c)]
     (dom/div nil
              (dom/h1 nil (:title app))
-             ;      (dom/img #js { :width 200 :height 200 :src image :onKeyDown #(println "idown")  } )
-             (dom/img #js {:src (str "/i/" image)})
-             (dom/br nil)
-             ;(map #(dom/div nil %) choices)
-             (quiz-item owner 1 choices app do-check-answer)
-             (quiz-item owner 2 choices app do-check-answer)
-             (quiz-item owner 3 choices app do-check-answer)
-             (quiz-item owner 4 choices app do-check-answer)
-             (quiz-item owner 5 choices app do-check-answer)
-             (dom/br nil)
-             (if (contains? app :user-choice)
-               (dom/p nil "Next (press N) " (dom/input #js {:ref "answer" :size 1 :onChange #(do-next-round app owner)}) " or click on any name.")
-               (dom/p nil "Number? " (dom/input #js {:ref "answer" :size 1 :onChange #(do-check-answer-keypress app owner do-check-answer)}) " or click on answer.")
-               )
-             (dom/br nil)
-             (dom/div nil (:total-count c) "/" (:round-size c))
-             )
-    )
-  )
-
-(defn loading-quiz [app]
-
-  (dom/div nil
-           (dom/h1 nil "Loading " (:title app) " ...")
-
-           )
-  )
-
-(defn my-learning [app]
-  (dom/div nil
-           (dom/h1 nil "My Learning")
-           (dom/br nil)
-           ;(dom/input #js {:type "submit" :value "Start Quiz" :onClick q/do-start-quiz})
-           )
-  )
+             (if image
+               (dom/div #js {:style #js {:float "left" :min-width 300 :width 300}} ;{:display "inline-block"}}
+                        (dom/img #js {:src (str "/i/" image)})
+                        (dom/p nil)
+                        (quiz-item owner 1 choices app do-check-answer)
+                        (dom/p nil)
+                        (quiz-item owner 2 choices app do-check-answer)
+                        (dom/p nil)
+                        (quiz-item owner 3 choices app do-check-answer)
+                        (dom/p nil)
+                        (quiz-item owner 4 choices app do-check-answer)
+                        (dom/p nil)
+                        (quiz-item owner 5 choices app do-check-answer)
+                        (dom/br nil)
+                        #_(if (contains? app :user-choice)
+                            (dom/p nil "Next (press N) " (dom/input #js {:ref "answer" :size 1 :onChange #(do-next-round app owner)}) " or click on any name.")
+                            (dom/p nil "Number? " (dom/input #js {:ref "answer" :size 1 :onChange #(do-check-answer-keypress app owner do-check-answer)}) " or click on answer."))
+                        (dom/br nil)
+                        (dom/br nil)
+                        (dom/div nil "Completed/Total " (:total-count c) "/" (:round-size c)))
+               (if c
+                 (dom/div #js {:style #js {:float "left" :min-width 300 :width 300}} (dom/br nil) (dom/br nil)
+                          (dom/h2 nil "End of Round")
+                          (dom/div nil "Your score was: "  )
+                          (pr-str app))
+                 (dom/div #js {:style #js {:float "left" :min-width 300 :width 300}} (dom/br nil) (dom/br nil) "Loading..."))
+                )
+             (if last
+               (let [{:keys [choices name user-choice]} last]
+                 (dom/div #js {:width 500 :style #js {:float "left"}}
+                          (dom/img #js {:src (str "/i/" (:image last)) :className "lastimage"})
+                          (dom/br nil)
+                          (last-item 1 choices name user-choice)
+                          (last-item 2 choices name user-choice)
+                          (last-item 3 choices name user-choice)
+                          (last-item 4 choices name user-choice)
+                          (last-item 5 choices name user-choice)))))))

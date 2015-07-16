@@ -1,3 +1,13 @@
 h1 {
   text-decoration: underline;
 }
+img.lastimage, div.last {
+    opacity: 0.4;
+    filter: alpha(opacity=40); /* For IE8 and earlier */
+}
+a.choice {
+  padding-left: 10px
+}
+a.choice:hover {
+  background-color: lightblue
+}
