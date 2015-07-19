@@ -35,9 +35,6 @@
         {:status 200 :body (pr-str {:message "Bad Password"})})
       {:status 200 :body (pr-str {:message "Bad Username"})})))
 
-(defn data-page [req]
-  (map #(str "<div style='display:inline-block;margin: 5px;margin-top: 20px;text-align: center'><img width=300px src='/i/" (:image_name %) "'><br>" (:name %) " </div>") challenges))
-
 (defn serv-image [image]
   {:status 200
    :body   (new java.io.FileInputStream (str home-dir "/shapes/" (java.net.URLDecoder/decode image)))})
@@ -48,10 +45,10 @@
     (:round (first outcomes))))
 
 (defn record-and-fetch-outcomes [user correct answer]
-  (let [{:keys [outcomes_count round]} (first (quiz.db/count-current-outcomes quiz.db/db-spec user))]
+  (let [{:keys [outcomes_count round correct_count]} (first (quiz.db/count-current-outcomes quiz.db/db-spec user))]
     (if (empty? answer)
-      [outcomes_count round]
-      (do
+      [outcomes_count round correct_count]
+      (let [round (if (= outcomes_count total-challenges) (inc round) round)]
         (quiz.db/insert-outcome! quiz.db/db-spec user round correct answer (= correct answer))
         [(inc outcomes_count) round]))))
 
@@ -62,13 +59,14 @@
   (map :name (take 4 (shuffle (filter #(not (= name (:name %))) challenges)))))
 
 (defn generate-next-challenge [user correct answer]
-  (let [[outcomes-count round] (record-and-fetch-outcomes user correct answer)
+  (let [[outcomes-count round correct_count] (record-and-fetch-outcomes user correct answer)
         [{:keys [image_name name gender]}] (pick-next user round)
         message {:image       image_name
                  :name        name
                  :gender      gender
                  :round-size   total-challenges
                  :total-count  (:outcomes_count (first (quiz.db/count-current-outcomes quiz.db/db-spec user)))
+                 :correct_count  (.intValue correct_count)
                  :fakes       (pick-fakes name gender)}]
     (println "sending -- " message)
     message))
@@ -83,6 +81,24 @@
      ;:session new-session
      }))
 
+(defn start-next-round [req]
+  (let [user "guest"
+        [round] (record-and-fetch-outcomes user nil nil)
+        [{:keys [image_name name gender]}] (pick-next user round)
+        message {:image         image_name
+                 :name          name
+                 :gender        gender
+                 :round-size    total-challenges
+                 :total-count   0
+                 :correct_count 0
+                 :fakes         (pick-fakes name gender)}]
+    (println "sending -- " message)
+    {:status 200
+     :body   (pr-str message)
+     }
+    )
+  )
+
 (defn fetch-config [req]
   {:status  200
    :body   (pr-str quiz.config/config)})
@@ -92,9 +108,9 @@
   (resources "/react" {:root "react"})
   (GET "/next-challenge" req (next-challenge req))
   (POST "/next-challenge" req (next-challenge req))
+  (GET "/start-next-round" req (start-next-round req))
   (POST "/send-message" req (post req))
   (POST "/fetch-config" req  (fetch-config req))
-  (GET "/data" req (data-page req))
   (GET "/i/:image" [image] (serv-image image))
   (GET "/*" req (page)))
 

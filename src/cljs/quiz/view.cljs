@@ -1,6 +1,7 @@
 (ns quiz.view
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
+            [quiz.core]
             [ajax.core :refer [GET POST]]
             [quiz.utils :as u]))
 
@@ -79,8 +80,13 @@
                (if c
                  (dom/div #js {:style #js {:float "left" :min-width 300 :width 300}} (dom/br nil) (dom/br nil)
                           (dom/h2 nil "End of Round")
-                          (dom/div nil "Your score was: "  )
-                          (pr-str app))
+                          (dom/div nil "Your score was: "  (dom/b nil (:correct_count c) "/" (:total-count c) ))
+                          (dom/br nil )
+                          (dom/input #js { :type "submit" :value "Next Round"
+                                          :onClick #(quiz.core/start-next-round )
+                                          } )
+                          ;(pr-str app)
+                 )
                  (dom/div #js {:style #js {:float "left" :min-width 300 :width 300}} (dom/br nil) (dom/br nil) "Loading..."))
                 )
              (if last

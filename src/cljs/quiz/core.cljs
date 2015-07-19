@@ -40,6 +40,13 @@
     {:handler challenge-handler
      :format  :raw}))
 
+(defn start-next-round []
+  (u/l "requesting start")
+  (ajax.core/GET "/start-next-round"
+                  {:handler challenge-handler
+                   :format  :raw}))
+
+
 (defn post-fn [path params]
   (ajax.core/POST path
     {:params        params
