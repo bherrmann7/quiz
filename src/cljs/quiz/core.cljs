@@ -28,7 +28,7 @@
 (defn challenge-handler [resp]
   (let [c (cljs.reader/read-string resp)]
     (u/l c)
-    (swap! app-state assoc :challenge (assoc c :choices (into [] (shuffle (conj (:fakes c) (:name c))))))))
+    (swap! app-state assoc :challenge (assoc c :choices (vec (shuffle (conj (:fakes c) (:name c))))))))
 
 
 (defn config-handler [resp]
@@ -43,8 +43,8 @@
 (defn start-next-round []
   (u/l "requesting start")
   (ajax.core/GET "/start-next-round"
-                  {:handler challenge-handler
-                   :format  :raw}))
+    {:handler challenge-handler
+     :format  :raw}))
 
 
 (defn post-fn [path params]
@@ -60,7 +60,7 @@
      (reify
        om/IRender
        (render [_]
-         (v/quiz-page app owner do-check-answer))))
+         (v/quiz-page app owner do-check-answer start-next-round))))
    app-state
    {:target (. js/document (getElementById "app"))}))
 

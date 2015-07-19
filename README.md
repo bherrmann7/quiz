@@ -1,6 +1,6 @@
 # Quiz
 
-A WORK IN PROGRESS - IE.  Its not working yet
+(A WORK IN PROGRESS - IE.  Its not working yet
 
 A ClojureScript/Clojure application which presents the user with an image and then 5 choices.
 For example, a presidential deck would show a president and ask the user to choose the correct name.

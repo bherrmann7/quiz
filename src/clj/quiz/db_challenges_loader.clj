@@ -16,8 +16,7 @@
 (defqueries "challenges.sql")
 
 (defn breakList [list]
-  (if (empty? list)
-    nil
+  (when (seq list)
     (let [remaining (rest (rest list))]
       (add-challenge! db-spec (second list) (first list))
       (breakList remaining))))

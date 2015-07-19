@@ -20,8 +20,8 @@ values ( :user, :round, :name, :answer, :correct, now() )
 select * from outcomes where round = (select max(round) from outcomes where user = :user)
 
 -- name: count-current-outcomes
-select count(1) outcomes_count, IF(max(round) is null,1,max(round)) round, sum(correct) correct_count
-from outcomes where round = (select max(round) from outcomes where user = :user)
+select count(1) outcomes_count, IF(max(round) is null,1,max(round)) round, ifnull(sum(correct),0) correct_count
+from outcomes where round = (select max(round) from outcomes where user = :user )
 
 -- name:pick-next
 SELECT image_name, c.name, c.gender FROM challenges c

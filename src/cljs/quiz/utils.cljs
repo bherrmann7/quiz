@@ -2,7 +2,7 @@
 
 
 (defn l [& args]
-  (.log js/console (apply str args)))
+  (.log js/console (clojure.string/join args)))
 
 
 (defn ls [& args]
