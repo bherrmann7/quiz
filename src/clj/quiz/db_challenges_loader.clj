@@ -21,9 +21,12 @@
       (add-challenge! db-spec (second list) (first list))
       (breakList remaining))))
 
-(delete-challenges! db-spec)
+(defn do-load []
+  (delete-challenges! db-spec)
+  (breakList (load-challenges (str (:deck-dir quiz.config/config) "/deck.clj")))
 
-(breakList (load-challenges (str (:deck-dir quiz.config/config) "/deck.clj")))
+  (println "records: " (challenges-query db-spec))
+  (println "records loaded " (count (challenges-query db-spec)))
+  )
 
-(println "records: " (challenges-query db-spec))
-(println "records loaded " (count (challenges-query db-spec)))
+;(do-load)
