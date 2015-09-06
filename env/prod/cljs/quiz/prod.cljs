@@ -1,4 +1,7 @@
-(ns quiz.prod
+(ns quiz.app
   (:require [quiz.core :as core]))
 
-(core/main)
+;;ignore println statements in prod
+(set! *print-fn* (fn [& _]))
+
+(core/init!)
