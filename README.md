@@ -5,6 +5,14 @@
 A ClojureScript/Clojure application which presents the user with an image and then 5 choices.
 For example, a presidential deck would show a president and ask the user to choose the correct name.
 
+# how to initialize and run project (as a developer)
+
+ - create mysql database
+ - edit profiles.clj to add database schema/user/password information
+ - run "lein run load" - to load presidents and shapes into database
+ - lein figwheel
+ - lein run (to start web server)
+
 
 ## History
 

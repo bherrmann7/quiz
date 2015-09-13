@@ -1,4 +1,4 @@
-(ns quiz.deck-loader
+(ns quiz.db_loader.deck-loader
   (:require [quiz.db.core]
             [ring.util.response :refer [response status]]
             [clojure.java.io :as io])
@@ -31,9 +31,9 @@
         (load-cards-into-db deck-id path cards)))))
 
 
-  ; This script is commentted out, because I dont want the decks reloading eveyrtime I compile.
-  ;(quiz.db.core/connect!)
-  ;(quiz.db.core/delete-decks!  @quiz.db.core/*conn*)
-  ;(quiz.db.core/delete-cards!  @quiz.db.core/*conn*)
-  ;(load-deck "resources/decks/shapes/")
-  ;(load-deck "resources/decks/presidents/")
+(defn load []
+    (quiz.db.core/connect!)
+    (quiz.db.core/delete-decks! @quiz.db.core/*conn*)
+    (quiz.db.core/delete-cards! @quiz.db.core/*conn*)
+    (load-deck "resources/decks/shapes/")
+    (load-deck "resources/decks/presidents/"))
