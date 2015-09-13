@@ -14,11 +14,11 @@
    "/swagger-ui")
   ;JSON docs available at the /swagger.json route
   (swagger-docs
-    {:info {:title "Sample api"}})
+    {:info {:title "Quiz API"}})
   (context* "/api" []
-            :tags ["thingie"]
+            :tags ["quiz tag"]
 
-            (GET* "/plus" []
+            (GET* "/register" []
                   :return       Long
                   :query-params [x :- Long, {y :- Long 1}]
                   :summary      "x+y with query-parameters. y defaults to 1."
