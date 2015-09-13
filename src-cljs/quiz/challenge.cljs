@@ -104,6 +104,12 @@
          :handler       #(quiz.challenge/handle-next-challenge  %)
          :error-handler u/error-handler}))
 
+(defn return-to-decks []
+  (POST (str js/context "/decks")
+        {:headers       {"Accept" "application/transit+json"}
+         :handler       #(quiz.login/handle-login-response  %)
+         :error-handler u/error-handler}))
+
 (defn completed [challenge]
   (if (= (:cards_completed challenge) (:deck_size challenge))
     [:div {:style {:float "left" :min-width 300 :width 300}}
@@ -113,9 +119,16 @@
      [:div "Your score was: " [:b (:cards_correct challenge) "/" (:deck_size challenge)]]
      [:br]
      [:input {:type "submit" :value "Next Round"
-                :on-click handle-start-next-round
+              :on-click handle-start-next-round
               }
       ]
+     [:br]
+     [:br]
+
+     [:input {:type "submit" :value "Return to Decks"
+                 :on-click return-to-decks
+                 }
+         ]
      ]
     ))
 
