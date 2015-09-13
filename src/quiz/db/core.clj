@@ -1,8 +1,8 @@
 (ns quiz.db.core
   (:require
-    [clojure.java.jdbc :as jdbc]
-    [conman.core :as conman]
-    [environ.core :refer [env]])
+   [clojure.java.jdbc :as jdbc]
+   [conman.core :as conman]
+   [environ.core :refer [env]])
   (:import [java.sql
             BatchUpdateException
             PreparedStatement]))
@@ -20,10 +20,10 @@
 
 (defn connect! []
   (conman/connect!
-    *conn*
+   *conn*
    (assoc
-     pool-spec
-     :jdbc-url (env :database-url))))
+    pool-spec
+    :jdbc-url (env :database-url))))
 
 (defn disconnect! []
   (conman/disconnect! *conn*))
@@ -42,5 +42,4 @@
   jdbc/ISQLParameter
   (set-parameter [v ^PreparedStatement stmt idx]
     (.setTimestamp stmt idx (java.sql.Timestamp. (.getTime v)))))
-
 

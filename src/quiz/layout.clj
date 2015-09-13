@@ -17,15 +17,15 @@
   "renders the HTML template located relative to resources/templates"
   [template & [params]]
   (content-type
-    (ok
-      (parser/render-file
-        template
-        (assoc params
-          :page template
-          :dev (env :dev)
-          :csrf-token *anti-forgery-token*
-          :servlet-context *app-context*)))
-    "text/html; charset=utf-8"))
+   (ok
+    (parser/render-file
+     template
+     (assoc params
+            :page template
+            :dev (env :dev)
+            :csrf-token *anti-forgery-token*
+            :servlet-context *app-context*)))
+   "text/html; charset=utf-8"))
 
 (defn error-page
   "error-details should be a map containing the following keys:

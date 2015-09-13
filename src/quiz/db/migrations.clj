@@ -1,8 +1,8 @@
 (ns quiz.db.migrations
   (:require
-    [migratus.core :as migratus]
-    [environ.core :refer [env]]
-    [to-jdbc-uri.core :refer [to-jdbc-uri]]))
+   [migratus.core :as migratus]
+   [environ.core :refer [env]]
+   [to-jdbc-uri.core :refer [to-jdbc-uri]]))
 
 (defn parse-ids [args]
   (map #(Long/parseLong %) (rest args)))

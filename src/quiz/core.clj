@@ -67,4 +67,4 @@
     (some #{"migrate" "rollback"} args) (migrations/migrate args)
     (some #{"load"} args) (quiz.db_loader.deck-loader/load)
     :else (start-app args)))
-  
+

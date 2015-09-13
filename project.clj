@@ -48,6 +48,7 @@
 
   :plugins [[lein-environ "1.0.0"]
             [migratus-lein "0.1.7"]
+            [lein-cljfmt "0.3.0"]
             [lein-cljsbuild "1.0.6"]
             [lein-ring "0.9.6"]]
   :ring

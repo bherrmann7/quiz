@@ -14,7 +14,7 @@
    "/swagger-ui")
   ;JSON docs available at the /swagger.json route
   (swagger-docs
-    {:info {:title "Quiz API"}})
+   {:info {:title "Quiz API"}})
   (context* "/api" []
             :tags ["quiz tag"]
 

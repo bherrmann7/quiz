@@ -16,9 +16,9 @@
   (doseq [[name image-file] (partition 2 card-pairs)]
     (println "Loading" name path image-file)
     (quiz.db.core/insert-card! {:deck_id    deck-id,
-                                                 :name       name
-                                                 :grouping   nil
-                                                 :image_data (new FileInputStream (str path image-file)) } @quiz.db.core/*conn*)))
+                                :name       name
+                                :grouping   nil
+                                :image_data (new FileInputStream (str path image-file))} @quiz.db.core/*conn*)))
 
 (defn load-deck [path]
   (let [{:keys [name image-file cards]}
@@ -30,10 +30,9 @@
       (let [deck-id (create-deck name path image-file (count cards))]
         (load-cards-into-db deck-id path cards)))))
 
-
 (defn load []
-    (quiz.db.core/connect!)
-    (quiz.db.core/delete-decks! @quiz.db.core/*conn*)
-    (quiz.db.core/delete-cards! @quiz.db.core/*conn*)
-    (load-deck "resources/decks/shapes/")
-    (load-deck "resources/decks/presidents/"))
+  (quiz.db.core/connect!)
+  (quiz.db.core/delete-decks! @quiz.db.core/*conn*)
+  (quiz.db.core/delete-cards! @quiz.db.core/*conn*)
+  (load-deck "resources/decks/shapes/")
+  (load-deck "resources/decks/presidents/"))
