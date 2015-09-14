@@ -52,7 +52,6 @@
 
 (defn send-deck-image [id]
   (content-type {:status 200
-;                 :body   (clojure.java.io/input-stream (:image_data (first (quiz.db.core/run quiz.db.core/get-deck-image-data {:id id}))))} "image/png"))
                  :body   (clojure.java.io/input-stream (:image_data (first (quiz.db.core/get-deck-image-data {:id id} @quiz.db.core/*conn*))))} "image/png"))
 
 (defn decks [{{user_id :user_id} :session}]

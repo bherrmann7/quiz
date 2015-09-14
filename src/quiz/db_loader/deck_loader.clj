@@ -30,6 +30,7 @@
       (let [deck-id (create-deck name path image-file (count cards))]
         (load-cards-into-db deck-id path cards)))))
 
+; run this, which loads the deck images into the database, by typing "lein run load"
 (defn load []
   (quiz.db.core/connect!)
   (quiz.db.core/delete-decks! @quiz.db.core/*conn*)
