@@ -8,17 +8,21 @@
             [quiz.state]
             [quiz.login]
             [quiz.decks]
+            [quiz.navbar]
             [ajax.core :refer [GET POST]])
   (:import goog.History))
 
 
 (defn route []
-  (if (:challenge @quiz.state/app-state)
+  [:html
+   (quiz.navbar/navbar )
+   (if (:challenge @quiz.state/app-state)
   (quiz.challenge/challenge-page)
     (if (:decks @quiz.state/app-state)
       (quiz.decks/decks-page)
       (quiz.login/login-page)
-      )))
+      ))
+  ])
 
 (defn mount-components []
   (reagent/render [route] (.getElementById js/document "app")))

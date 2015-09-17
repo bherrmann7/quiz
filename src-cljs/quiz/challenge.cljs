@@ -1,5 +1,6 @@
 (ns quiz.challenge
   (:require [quiz.utils :as u]
+            [quiz.login]
             [quiz.state]
             [ajax.core :refer [GET POST]]))
 

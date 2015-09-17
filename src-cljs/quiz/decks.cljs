@@ -31,7 +31,7 @@
 
 [:div.container
  [:div
-  [:h2 "Quiz Decks"]
+  [:h2 "Decks"]
   ]
  (make-decks)
  ]
