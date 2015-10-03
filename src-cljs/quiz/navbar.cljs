@@ -1,12 +1,13 @@
 (ns quiz.navbar
-  (:require [quiz.utils :as u]))
+  (:require [quiz.utils :as u]
+            [quiz.state :as s]))
 
 (defn do-logout []
-  (println "You should logout!")
+  (set! (.-location js/window) "/")
   )
 
 (defn do-decks []
-  (swap! quiz.state/app-state dissoc :challenge )
+  (swap! s/app-state dissoc :challenge )
   )
 
 (defn do-about []
@@ -19,8 +20,8 @@
 
 (defn page-at []
   (let [page
-  (if (contains? @quiz.state/app-state :challenge ) :quiz
-    (if (contains? @quiz.state/app-state :user_id ) :decks
+  (if (contains? @s/app-state :challenge ) :quiz
+    (if (contains? @s/app-state :user_id ) :decks
       :login))]
   (u/l "at page" page)
   page)
@@ -44,7 +45,7 @@
         )
       ]
 
-     #_(if (not= :login (page-at))
+     (if (not= :login (page-at))
        [:ul.nav.navbar-nav.pull-right
         [:li [:a {:on-click #(do-logout)} "Logout"]]]
        )

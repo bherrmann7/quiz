@@ -30,19 +30,17 @@
     ;(response {:errors {:username "Username already in use." :email "Email address already registered" :password "too short"}})
 ))
 
-(defn login-summary [user-id]
+(defn deck-summary [user-id]
   {:user_id user-id
-   :decks (quiz.db.core/get-decks @quiz.db.core/*conn*)
-   :stats [{:deck_id 1
-            :completed_rounds 5
-            :cards_completed 3
-            :last-complete-round-percent 75}]})
+   :decks   (quiz.db.core/deck-summary-for-user {:user_id user-id} @quiz.db.core/*conn*)
+   }
+   )
 
 (defn login-req [email password {session :session}]
   (let [some-user (first (quiz.db.core/get-user {:email email} @quiz.db.core/*conn*))]
     (if some-user
       (if (hashers/check password (:password some-user))
-        (assoc (response (login-summary (:id some-user))) :session (assoc session :user_id (:id some-user)))
+        (assoc (response (deck-summary (:id some-user))) :session (assoc session :user_id (:id some-user)))
         (response {:errors {:password "Incorrect Password"}}))
       (response {:errors {:email "Not found"}}))))
 
@@ -55,7 +53,7 @@
                  :body   (clojure.java.io/input-stream (:image_data (first (quiz.db.core/get-deck-image-data {:id id} @quiz.db.core/*conn*))))} "image/png"))
 
 (defn decks [{{user_id :user_id} :session}]
-  (response (login-summary user_id)))
+  (response (deck-summary user_id)))
 
 (defroutes home-routes
   (GET "/" [] (home-page))

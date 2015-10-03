@@ -42,13 +42,52 @@ delete from cards
 -- name: insert-round!
 insert into rounds values (null, :deck_id, :user_id, :round, now(), null )
 
+-- name: close-round!
+update rounds set completed_time = now() where deck_id = deck_id and user_id = :user_id and id = :round_id
+
 -- name: insert-outcome!
 insert into outcomes ( deck_id, user_id, round_id, correct_card_id, chosen_card_id, correct, occurred )
 values ( :deck_id, :user_id, :round_id, :correct_card_id, :chosen_card_id, :correct, now() )
-
 
 -- name: current-round
 select c.id,c.name, r.user_id, r.id round_id, r.round, o.correct  from cards c
 join rounds r on c.deck_id = r.deck_id and r.user_id = :user_id
 left outer join outcomes o on o.round_id = r.id and o.correct_card_id = c.id
 where r.id = (select max(id) from rounds where deck_id = :deck_id and user_id = :user_id)
+
+-- name: deck-summary-for-user
+SELECT
+    d.id,
+    name,
+    card_count,
+    MAX(r.round)                                 your_rounds,
+    COUNT(o.deck_id) total_challenges,
+    cast(SUM(o.correct) as SIGNED) correct_challenges,
+     CASE
+        WHEN o.round_id IS NULL
+        THEN 1
+        WHEN (
+                SELECT
+                    completed_time
+                FROM
+                    rounds x
+                WHERE
+                    x.user_id = r.user_id
+                AND x.deck_id = r.deck_id
+                ORDER BY
+                    ROUND DESC limit 0,1) IS NULL
+        THEN false
+        ELSE true
+    END round_completed
+FROM
+    decks d
+LEFT OUTER JOIN
+    rounds r
+ON
+    d.id = r.deck_id and r.user_id = :user_id
+LEFT OUTER JOIN
+    outcomes o
+ON
+    r.id = o.round_id
+GROUP BY
+    d.id

@@ -19,11 +19,12 @@
                           [:img {:src (str js/context "/deck-image/" (:id deck))}]
                           [:div (:name deck)]
                           [:br "Cards " (/ (:card_count deck) 2)]
-                          [:br "Your rounds 0"]
-                          [:br "Your % correct N/A"]
+                          [:br "Your rounds " (:your_rounds deck)]
+                          [:br (/ (:total-challenges deck) (:correct_challenges deck)) "% correct "]
                           [:br]
                           [:br]
-                          [:button.btn-primary.btn {:on-click #(start-challenge (:id deck))} "Start Round"]
+                          [:button.btn-primary.btn {:on-click #(start-challenge (:id deck))}
+                           (if (= (:round_completed deck) 1 ) "Start Round" "Continue Round")]
                           )) (:decks @quiz.state/app-state)))
 
 

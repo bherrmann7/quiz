@@ -18,6 +18,10 @@
         "red"
         "black"))))
 
+(defn deck-inc-coutner [state deck-id corretness]
+  (println "deck-inc-coutner got" deck-id corretness)
+  )
+
 (defn do-check-answer [user-choice]
   (u/l "do-check-answer " user-choice)
   (let [challenge (:challenge @quiz.state/app-state)
@@ -27,7 +31,7 @@
         chosen_id (second (first (filter #(= (first %) user-choice ) (:choices challenge ) )))
         last (assoc challenge :user-choice user-choice)]
     (swap! quiz.state/app-state assoc :last last :challenge {:loading true})
-
+    (swap! quiz.state/app-state deck-inc-coutner deck_id (= correct_card_id chosen_id))
   (u/l "I assoced ")
   (POST (str js/context "/next-challenge")
         {:headers       {"Accept" "application/transit+json"}
@@ -58,7 +62,7 @@
 
 (defn show-choices [challenge image choices]
   [:div {:style {:float "left" :min-width 300 :width 300}}  ;{:display "inline-block"}}
-   [:img {:src (str "/card-image/" image)}]
+   [:img {:src (str js/context "/card-image/" image)}]
    [:p]
    (quiz-item 1 choices)
    [:p nil]
@@ -87,7 +91,7 @@
         ]
     [:div "hi"]
     [:div {:width 500 :style style-use}
-     [:img {:src (str "/card-image/" correct_card_id) :className "lastimage"}]
+     [:img {:src (str js/context "/card-image/" correct_card_id) :className "lastimage"}]
      [:br]
      (last-item 1 choices correct-choice user-choice)
      (last-item 2 choices correct-choice user-choice)
@@ -144,8 +148,6 @@
         choices (:choices challenge)
         ]
     [:div.container
-     [:h1 "Quiz"]
-     [:br]
 
      (if (:loading challenge)
        [:div {:style {:float "left" :min-width 300 :width 300}} [:br nil] [:br nil] "Loading..."]

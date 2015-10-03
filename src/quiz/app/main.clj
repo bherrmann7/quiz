@@ -1,6 +1,8 @@
 (ns quiz.app.main
   (:require quiz.db.core
-            [ring.util.response :refer [response status content-type]]))
+            [ring.util.response :refer [response status content-type]]
+            [environ.core :refer [env]]
+             ))
 
 ;
 ;; We assume the challenges are not updated while we are running.
@@ -9,7 +11,9 @@
 ;;(def total-cards  (count cards))
 ;
 
-(defn next-challenge [deck_id round_id card_id chosen_id  {{user_id :user_id} :session}]
+(defn next-challenge [deck_id round_id card_id chosen_id  {{session_user_id :user_id} :session}]
+  (let [user_id (if (and (env :dev) (nil? session_user_id)) 1 session_user_id)]
+
   (println "next-challenge " user_id  deck_id round_id card_id chosen_id)
 
   (if (and deck_id round_id card_id chosen_id)
@@ -47,6 +51,8 @@
                      :deck_size       (count current-round)
                      :cards_completed (count (filter #(not (nil? (:correct %))) current-round))
                      :cards_correct   (count (filter :correct current-round))}]
+        (if (nil? (second correct-entry))
+          (quiz.db.core/close-round! {:user_id user_id :deck_id deck_id :round_id round_id } @quiz.db.core/*conn*))
         (println "------ Should start challenge " message)
-        (response message)))))
+        (response message))))))
 

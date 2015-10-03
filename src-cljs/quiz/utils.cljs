@@ -1,4 +1,5 @@
-(ns quiz.utils)
+(ns quiz.utils
+  (:require clojure.string))
 
 
 (defn l [& args]
