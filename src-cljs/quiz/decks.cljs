@@ -2,7 +2,10 @@
   (:require [quiz.utils :as u]
             [quiz.state]
             [ajax.core :refer [GET POST]]
-            [quiz.challenge]))
+            [quiz.challenge]
+            [goog.string :as gstring]
+            [goog.string.format]
+            ))
 
 
 (defn start-challenge [deck_id]
@@ -19,8 +22,11 @@
                           [:img {:src (str js/context "/deck-image/" (:id deck))}]
                           [:div (:name deck)]
                           [:br "Cards " (/ (:card_count deck) 2)]
-                          [:br "Your rounds " (:your_rounds deck)]
-                          [:br (/ (:total-challenges deck) (:correct_challenges deck)) "% correct "]
+                          (if (not= (:total_challenges deck) 0)
+                            [:br "Your rounds " (:your_rounds deck)] )
+                          (if (not= (:total_challenges deck) 0)
+                            [:br (gstring/format "%.1f%% correct" (/ (* 100 (:correct_challenges deck)) (:total_challenges deck)))]
+                            )
                           [:br]
                           [:br]
                           [:button.btn-primary.btn {:on-click #(start-challenge (:id deck))}
