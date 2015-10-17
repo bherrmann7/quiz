@@ -18,9 +18,19 @@
         "red"
         "black"))))
 
-(defn deck-inc-coutner [state deck-id corretness]
-  (println "deck-inc-coutner got" deck-id corretness)
-  )
+(defn deck-inc-coutner [state deck-id last-answer-correct]
+  (let [decks (:decks state)
+        deck (first (filter #(= (:id %) deck-id) decks))
+        other-decks (filter #(not= (:id %) deck-id) decks)
+        total_challenges (inc (:total_challenges deck))
+        was_correct_challenges (:correct_challenges deck)
+        correct_challenges (if last-answer-correct (inc was_correct_challenges) was_correct_challenges)
+        new-deck (assoc deck :total_challenges total_challenges :correct_challenges correct_challenges)
+        new-decks (sort-by :id (conj other-decks new-deck))
+        new-state (assoc state :decks new-decks)
+  ]
+  new-state
+  ))
 
 (defn do-check-answer [user-choice]
   (u/l "do-check-answer " user-choice)

@@ -18,10 +18,10 @@
 
 (defn make-decks []
 
-  (map (fn [deck] (vector :div.col-md-2.well {:style {:margin "15px"}}
+  (map (fn [deck] (vector :div.col-md-2.well {:style {:margin "10px"}}
                           [:img {:src (str js/context "/deck-image/" (:id deck))}]
                           [:div (:name deck)]
-                          [:br "Cards " (/ (:card_count deck) 2)]
+                          [:div "Cards " (/ (:card_count deck) 2)]
                           (if (not= (:total_challenges deck) 0)
                             [:br "Your rounds " (:your_rounds deck)] )
                           (if (not= (:total_challenges deck) 0)
