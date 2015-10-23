@@ -14,7 +14,7 @@
 
 
 (defn route []
-  [:html
+  [:div
    (quiz.navbar/navbar )
    (if (:challenge @quiz.state/app-state)
   (quiz.challenge/challenge-page)

@@ -9,7 +9,6 @@
 
 
 (defn start-challenge [deck_id]
-  (u/l "humm")
   (POST (str js/context "/next-challenge")
         {:headers       {"Accept" "application/transit+json"}
          :params        {:deck_id deck_id}
@@ -18,14 +17,17 @@
 
 (defn make-decks []
 
-  (map (fn [deck] (vector :div.col-md-2.well {:style {:margin "10px"}}
-                          [:img {:src (str js/context "/deck-image/" (:id deck))}]
+  (map (fn [deck] (vector :div.col-md-2.well {:style {:margin "10px" } :key (:id deck) }
+                          [:img { :style { :paddingBottom "10px" } :width 150 :src (str js/context "/deck-image/" (:id deck))}]
                           [:div (:name deck)]
                           [:div "Cards " (/ (:card_count deck) 2)]
                           (if (not= (:total_challenges deck) 0)
-                            [:br "Your rounds " (:your_rounds deck)] )
+                            [:br "Your Rounds " [:b (:your_rounds deck)]] )
+                           ; consider showing your "last round" score, not as depressing as Ever
+;                          (if (not= (:total_challenges deck) 0)
+;                            [:br "Last Round " [:b (gstring/format "%.1f" (/ (* 100 (:correct_challenges deck)) (:total_challenges deck)))] "%"])
                           (if (not= (:total_challenges deck) 0)
-                            [:br (gstring/format "%.1f%% correct" (/ (* 100 (:correct_challenges deck)) (:total_challenges deck)))]
+                            [:br "Ever " [:b (gstring/format "%.1f" (/ (* 100 (:correct_challenges deck)) (:total_challenges deck)))] "% "]
                             )
                           [:br]
                           [:br]

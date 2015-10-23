@@ -5,6 +5,6 @@ CREATE TABLE cards
    name       VARCHAR(80),
    grouping   VARCHAR(20),
    enabled    bit(1),
-   image_data BLOB
+   image_data MEDIUMBLOB
 );
 

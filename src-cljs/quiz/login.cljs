@@ -40,9 +40,6 @@
   ))
 
 (defn handle-login-response [resp]
- (u/l "Got " resp)
- ; (u/l "Got email " (:email resp))
- ; (.log js/console "should process login response" resp )
   (reset! s/app-state resp)
  )
 

@@ -16,8 +16,6 @@
   (assoc req-map :password (hashers/encrypt (:password req-map))))
 
 (defn register-request [req]
-  (println "--- got request a " (:params req))
-  (println " selected " (select-keys  (:params req) [:email :password]))
   (let [x (try
             (quiz.db.core/create-user! (hash-password (select-keys (:params req) [:email :password])) @quiz.db.core/*conn*)
             (catch BatchUpdateException e

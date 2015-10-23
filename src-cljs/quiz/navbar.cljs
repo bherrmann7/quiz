@@ -3,18 +3,14 @@
             [quiz.state :as s]))
 
 (defn do-logout []
-  (set! (.-location js/window) "/")
+  (set! (.-location js/window) (str js/context "/"))
   )
 
 (defn do-decks []
   (swap! s/app-state dissoc :challenge )
   )
 
-(defn do-about []
-  (println "You should do-about!")
-  )
-
-(defn do-quiz []
+#_(defn do-about []
   (println "You should do-about!")
   )
 
@@ -23,7 +19,6 @@
   (if (contains? @s/app-state :challenge ) :quiz
     (if (contains? @s/app-state :user_id ) :decks
       :login))]
-  (u/l "at page" page)
   page)
   )
 

@@ -5,7 +5,6 @@
             [ajax.core :refer [GET POST]]))
 
 (defn handle-next-challenge [response]
-  (u/l "next-challenge " response)
   (swap! quiz.state/app-state assoc :challenge response)
   )
 
@@ -33,7 +32,6 @@
   ))
 
 (defn do-check-answer [user-choice]
-  (u/l "do-check-answer " user-choice)
   (let [challenge (:challenge @quiz.state/app-state)
         deck_id (:deck_id challenge)
         round_id (:round_id challenge)
@@ -42,7 +40,6 @@
         last (assoc challenge :user-choice user-choice)]
     (swap! quiz.state/app-state assoc :last last :challenge {:loading true})
     (swap! quiz.state/app-state deck-inc-coutner deck_id (= correct_card_id chosen_id))
-  (u/l "I assoced ")
   (POST (str js/context "/next-challenge")
         {:headers       {"Accept" "application/transit+json"}
          :params        {:round_id round_id :deck_id deck_id :card_id correct_card_id :chosen_id chosen_id }
@@ -62,7 +59,6 @@
 (defn last-item [pos choices correct-choice user-choice]
   (let [render-choice (first (nth choices (dec pos)))
         ]
-    (u/l "pos " pos " correct:" correct-choice " " user-choice )
     [:div
      [:p]
      [:div {:className "choice" :style {:color (choose-color render-choice correct-choice user-choice)}} render-choice]
@@ -71,8 +67,8 @@
   )
 
 (defn show-choices [challenge image choices]
-  [:div {:style {:float "left" :min-width 300 :width 300}}  ;{:display "inline-block"}}
-   [:img {:src (str js/context "/card-image/" image)}]
+  [:div {:style {:float "left" :min-width 300 :width 200}}  ;{:display "inline-block"}}
+   [:img {:width 200 :src (str js/context "/card-image/" image)}]
    [:p]
    (quiz-item 1 choices)
    [:p nil]
@@ -87,6 +83,7 @@
    [:br nil]
    [:br nil]
    [:div nil "Completed/Total " (:cards_completed challenge) "/" (:deck_size challenge) ]
+   [:div nil "Correct/Wrong " (:cards_correct challenge) "/"  (- (:cards_completed challenge) (:cards_correct challenge)) ]
    [:div " Round " (:round challenge) ]
    ]
   )
@@ -99,9 +96,8 @@
         correct-choice (ffirst (filter #(= (second %) correct_card_id ) choices ))
         style-use (if (= correct-choice user-choice) style-correct style-with-error)
         ]
-    [:div "hi"]
     [:div {:width 500 :style style-use}
-     [:img {:src (str js/context "/card-image/" correct_card_id) :className "lastimage"}]
+     [:img {:width 200 :src (str js/context "/card-image/" correct_card_id) :className "lastimage"}]
      [:br]
      (last-item 1 choices correct-choice user-choice)
      (last-item 2 choices correct-choice user-choice)
@@ -148,7 +144,6 @@
     ))
 
 (defn challenge-page []
-  (u/l "state " @quiz.state/app-state)
 
   (let [
         app-state @quiz.state/app-state
