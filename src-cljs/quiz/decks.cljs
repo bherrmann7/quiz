@@ -23,16 +23,17 @@
                           [:div "Cards " (/ (:card_count deck) 2)]
                           (if (not= (:total_challenges deck) 0)
                             [:br "Your Rounds " [:b (:your_rounds deck)]] )
-                           ; consider showing your "last round" score, not as depressing as Ever
-;                          (if (not= (:total_challenges deck) 0)
-;                            [:br "Last Round " [:b (gstring/format "%.1f" (/ (* 100 (:correct_challenges deck)) (:total_challenges deck)))] "%"])
+                          (if (not= (:last_round_total deck) 0)
+                            (let [prefix (if (= (:last_round_total deck) (:total_challenges deck)) "Last" "Current")]
+                              [:br prefix " Round " [:b (gstring/format "%.1f" (/ (* 100 (:last_round_correct deck)) (:last_round_total deck)))] "%"]))
                           (if (not= (:total_challenges deck) 0)
                             [:br "Ever " [:b (gstring/format "%.1f" (/ (* 100 (:correct_challenges deck)) (:total_challenges deck)))] "% "]
                             )
                           [:br]
                           [:br]
                           [:button.btn-primary.btn {:on-click #(start-challenge (:id deck))}
-                           (if (= (:round_completed deck) 1 ) "Start Round" "Continue Round")]
+                           (if (= (:is_round_completed deck) "Y" ) "Start Round" "Continue Round")
+                           ]
                           )) (:decks @quiz.state/app-state)))
 
 

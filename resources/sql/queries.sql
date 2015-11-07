@@ -65,7 +65,7 @@ SELECT
     cast(SUM(o.correct) as SIGNED) correct_challenges,
      CASE
         WHEN o.round_id IS NULL
-        THEN 1
+        THEN 'Y'
         WHEN (
                 SELECT
                     completed_time
@@ -76,9 +76,11 @@ SELECT
                 AND x.deck_id = r.deck_id
                 ORDER BY
                     ROUND DESC limit 0,1) IS NULL
-        THEN false
-        ELSE true
-    END round_completed
+        THEN 'N'
+        ELSE 'Y'
+    END is_round_completed,
+    cast(sum(case when o.round_id = (select max(round_id) from outcomes where r.user_id = :user_id) then 1 else 0 end) as SIGNED) last_round_total,
+    cast(sum(case when o.round_id = (select max(round_id) from outcomes where r.user_id = :user_id) and o.correct = true then 1 else 0 end) as SIGNED) last_round_correct
 FROM
     decks d
 LEFT OUTER JOIN

@@ -29,10 +29,13 @@
 ))
 
 (defn deck-summary [user-id]
+  (let [decks
   {:user_id user-id
    :decks   (quiz.db.core/deck-summary-for-user {:user_id user-id} @quiz.db.core/*conn*)
-   }
-   )
+   }]
+    (println decks)
+    decks
+   ))
 
 (defn login-req [email password {session :session}]
   (let [some-user (first (quiz.db.core/get-user {:email email} @quiz.db.core/*conn*))]

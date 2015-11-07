@@ -2,11 +2,17 @@
   (:require [quiz.utils :as u]
             [quiz.login]
             [quiz.state]
+            [goog.string :as gstring]
+            [goog.string.format]
             [ajax.core :refer [GET POST]]))
 
-(defn handle-next-challenge [response]
-  (swap! quiz.state/app-state assoc :challenge response)
+(defn update-decks-round [roundid round]
+  (println "update-decks-round" roundid round)
   )
+
+(defn handle-next-challenge [ch]
+    (swap! quiz.state/app-state assoc :challenge ch)
+    )
 
 (defn choose-color [render-choice correct-choice user-choice]
   (if (or (nil? user-choice) (= "" user-choice))
@@ -17,14 +23,17 @@
         "red"
         "black"))))
 
-(defn deck-inc-coutner [state deck-id last-answer-correct]
+(defn deck-inc-coutner [state deck-id last-answer-correct round]
   (let [decks (:decks state)
         deck (first (filter #(= (:id %) deck-id) decks))
         other-decks (filter #(not= (:id %) deck-id) decks)
         total_challenges (inc (:total_challenges deck))
-        was_correct_challenges (:correct_challenges deck)
+        was_correct_challenges (if (nil? (:correct_challenges deck)) 0 (:correct_challenges deck))
         correct_challenges (if last-answer-correct (inc was_correct_challenges) was_correct_challenges)
-        new-deck (assoc deck :total_challenges total_challenges :correct_challenges correct_challenges)
+        deck2 (update-in deck [:last_round_total] inc)
+        deck3 (if last-answer-correct (update-in deck2 [:last_round_correct] inc ) deck2)
+        deck4 (assoc deck3 :round round :is_round_completed false)
+        new-deck (assoc deck4 :total_challenges total_challenges :correct_challenges correct_challenges)
         new-decks (sort-by :id (conj other-decks new-deck))
         new-state (assoc state :decks new-decks)
   ]
@@ -39,7 +48,7 @@
         chosen_id (second (first (filter #(= (first %) user-choice ) (:choices challenge ) )))
         last (assoc challenge :user-choice user-choice)]
     (swap! quiz.state/app-state assoc :last last :challenge {:loading true})
-    (swap! quiz.state/app-state deck-inc-coutner deck_id (= correct_card_id chosen_id))
+    (swap! quiz.state/app-state deck-inc-coutner deck_id (= correct_card_id chosen_id) (:round challenge) )
   (POST (str js/context "/next-challenge")
         {:headers       {"Accept" "application/transit+json"}
          :params        {:round_id round_id :deck_id deck_id :card_id correct_card_id :chosen_id chosen_id }
@@ -49,14 +58,16 @@
 
 
 (defn quiz-item [pos choices]
+  (if (> pos (count choices)) ""
   (let [render-choice (first (nth choices (dec pos)))
         user-choice nil]
     [:a {:className "choice"
          :style     {:color (choose-color render-choice "correct-choice" user-choice)}
          :onClick   #(do-check-answer render-choice)
-         :ref       (str "ans" pos)} nil render-choice]))
+         :ref       (str "ans" pos)} nil render-choice])))
 
 (defn last-item [pos choices correct-choice user-choice]
+  (if (> pos (count choices)) ""
   (let [render-choice (first (nth choices (dec pos)))
         ]
     [:div
@@ -64,7 +75,7 @@
      [:div {:className "choice" :style {:color (choose-color render-choice correct-choice user-choice)}} render-choice]
      ]
     )
-  )
+  ))
 
 (defn show-choices [challenge image choices]
   [:div {:style {:float "left" :min-width 300 :width 200}}  ;{:display "inline-block"}}
@@ -127,7 +138,8 @@
      [:br]
      [:br]
      [:h2 "End of Round " (:round challenge)]
-     [:div "Your score was: " [:b (:cards_correct challenge) "/" (:deck_size challenge)]]
+     [:div "Your score was: " [:b (:cards_correct challenge) "/" (:deck_size challenge) " "
+                               (gstring/format "%.1f" (/ (* 100 (:cards_correct challenge)) (:deck_size challenge))) "%" ]]
      [:br]
      [:input {:type "submit" :value "Next Round"
               :on-click handle-start-next-round

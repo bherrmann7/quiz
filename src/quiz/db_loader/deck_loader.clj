@@ -62,6 +62,7 @@
   (quiz.db.core/connect!)
   (quiz.db.core/delete-decks! @quiz.db.core/*conn*)
   (quiz.db.core/delete-cards! @quiz.db.core/*conn*)
+  (load-deck "resources/decks/small/")
   (load-deck "resources/decks/shapes/")
   (load-deck "resources/decks/presidents/")
   (load-deck "resources/decks/nerf/"))
