@@ -1,27 +1,22 @@
 -- name: create-user!
 -- creates a new user record
-INSERT INTO users
-( email, password)
-VALUES (:email, :password)
+INSERT INTO users ( email, password) VALUES (:email, :password)
 
 -- name: get-user
 -- retrieve a user given the id.
-SELECT * FROM users
-WHERE email = :email
+SELECT * FROM users WHERE email = :email
 
 -- name: delete-user!
--- delete a user given the id
-DELETE FROM users
-WHERE email = :email
+DELETE FROM users WHERE email = :email
 
 -- name: get-decks
-SELECT id, name, card_count from decks
+SELECT id, name, card_count, type from decks
 
 -- name: get-deck-image-data
 SELECT image_data from decks where id = :id
 
 -- name: insert-deck!
-insert into decks values (null, :name, :card_count, :image_data)
+insert into decks values (null, :name, :card_count, :image_data, :type)
 
 -- name: insert-card!
 insert into cards values (null, :deck_id, :name, :grouping, 1, :image_data)
@@ -32,6 +27,11 @@ select * from cards where id = :id
 -- name: get-card-image-data
 SELECT image_data from cards where id = :id
 
+-- name: delete-outcomes!
+delete from outcomes
+
+-- name: delete-rounds!
+delete from rounds
 
 -- name: delete-decks!
 delete from decks
@@ -50,7 +50,7 @@ insert into outcomes ( deck_id, user_id, round_id, correct_card_id, chosen_card_
 values ( :deck_id, :user_id, :round_id, :correct_card_id, :chosen_card_id, :correct, now() )
 
 -- name: current-round
-select c.id,c.name, r.user_id, r.id round_id, r.round, o.correct  from cards c
+select c.id,c.name, r.user_id, r.id round_id, r.round, o.correct, c.answer  from cards c
 join rounds r on c.deck_id = r.deck_id and r.user_id = :user_id
 left outer join outcomes o on o.round_id = r.id and o.correct_card_id = c.id
 where r.id = (select max(id) from rounds where deck_id = :deck_id and user_id = :user_id)
@@ -80,7 +80,8 @@ SELECT
         ELSE 'Y'
     END is_round_completed,
     cast(sum(case when o.round_id = (select max(round_id) from outcomes where r.user_id = :user_id) then 1 else 0 end) as SIGNED) last_round_total,
-    cast(sum(case when o.round_id = (select max(round_id) from outcomes where r.user_id = :user_id) and o.correct = true then 1 else 0 end) as SIGNED) last_round_correct
+    cast(sum(case when o.round_id = (select max(round_id) from outcomes where r.user_id = :user_id) and o.correct = true then 1 else 0 end) as SIGNED) last_round_correct,
+    type
 FROM
     decks d
 LEFT OUTER JOIN

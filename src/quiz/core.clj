@@ -4,7 +4,7 @@
             [quiz.db.migrations :as migrations]
             [clojure.tools.nrepl.server :as nrepl]
             [taoensso.timbre :as timbre]
-            [quiz.db_loader.deck-loader]
+            [quiz.db-loader.deck-loader]
             [environ.core :refer [env]])
   (:gen-class))
 
@@ -65,6 +65,6 @@
 (defn -main [& args]
   (cond
     (some #{"migrate" "rollback"} args) (migrations/migrate args)
-    (some #{"load"} args) (quiz.db_loader.deck-loader/load)
+    (some #{"load-all-decks"} args) (quiz.db-loader.deck-loader/load-all-decks)
     :else (start-app args)))
 

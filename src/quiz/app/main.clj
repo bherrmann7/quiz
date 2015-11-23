@@ -26,6 +26,7 @@
         current-round (shuffle current-round-raw)
         next-correct (first (take 1 (filter #(nil? (:correct %)) current-round)))
         ]
+    (println "next-correct" next-correct)
     (if (and (nil? next-correct) (nil? chosen_id))
       (do
         ; insert new round
@@ -42,9 +43,12 @@
                      :choices         choices
                      :deck_size       (count current-round)
                      :cards_completed (count (filter #(not (nil? (:correct %))) current-round))
-                     :cards_correct   (count (filter :correct current-round))}]
+                     :cards_correct   (count (filter :correct current-round))
+                     :answer          (:answer next-correct)
+                     }
+            ]
         (if (nil? (second correct-entry))
           (quiz.db.core/close-round! {:user_id user_id :deck_id deck_id :round_id round_id } @quiz.db.core/*conn*))
-        ;(println "------ Should start challenge " message)
+        (println "------ Should start challenge " message)
         (response message))))))
 

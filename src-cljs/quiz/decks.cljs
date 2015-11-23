@@ -20,8 +20,8 @@
   (map (fn [deck] (vector :div.col-md-2.well {:style {:margin "10px" } :key (:id deck) }
                           [:img { :style { :paddingBottom "10px" } :width 150 :src (str js/context "/deck-image/" (:id deck))}]
                           [:div (:name deck)]
-                          [:div "Cards " (/ (:card_count deck) 2)]
-                          (if (not= (:total_challenges deck) 0)
+                          [:div "Cards " (:card_count deck)]
+                          (if (not  (nil? (:your_rounds  deck)))
                             [:br "Your Rounds " [:b (:your_rounds deck)]] )
                           (if (not= (:last_round_total deck) 0)
                             (let [prefix (if (= (:last_round_total deck) (:total_challenges deck)) "Last" "Current")]
@@ -32,7 +32,7 @@
                           [:br]
                           [:br]
                           [:button.btn-primary.btn {:on-click #(start-challenge (:id deck))}
-                           (if (= (:is_round_completed deck) "Y" ) "Start Round" "Continue Round")
+                           (if (= (:is_round_completed deck) "Y") "Start Round" "Continue Round")
                            ]
                           )) (:decks @quiz.state/app-state)))
 

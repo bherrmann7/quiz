@@ -1,12 +1,13 @@
-(ns quiz.db_loader.deck-loader
+(ns quiz.db-loader.deck-loader
   (:require [quiz.db.core]
             [ring.util.response :refer [response status]]
             [clojure.java.io :as io])
   (:import (java.sql BatchUpdateException DriverManager)
            (java.io FileInputStream)))
-()
-(defn create-deck [name path image-file card-count]
-  (quiz.db.core/insert-deck! {:name name  :image_data (new FileInputStream (str path image-file)) :card_count card-count}
+
+(defn create-deck [name path image-file card-count type]
+  (quiz.db.core/insert-deck! {:name name  :image_data (new FileInputStream (str path image-file)) :card_count card-count
+                              :type type }
                                                  @quiz.db.core/*conn*)
   (:id (some #(when (= name (:name %)) %) (quiz.db.core/get-decks @quiz.db.core/*conn*))))
 
@@ -17,52 +18,54 @@
       (.read reader buffer 0 length)
       buffer)))
 
-(defn load-card [path props]
+(defn load-card [deck-id type path name answer-data grouping]
   (let [
         conn  (DriverManager/getConnection (environ.core/env :database-url))
-        ps (.prepareStatement conn "insert into cards values (null, ?, ?, ?, 1, ?)")
-        fis (new FileInputStream (str path (:image-file props)))
+        ps (.prepareStatement conn (str "insert into cards (id, deck_id, name, grouping, enabled, image_data, answer)"
+                                                  " values (null,     ?,    ?,       ?,        1,         ?,       ?)"))
+        fis (if (= type "image") (new FileInputStream (str path answer-data)))
+        answer (if (= type "text") answer-data)
         ]
-    (.setInt ps 1 (:deck_id props))
-    (.setString ps 2 (:name props))
+    (.setInt ps 1 deck-id)
+    (.setString ps 2 name)
     (.setString ps 3 nil)
     (.setBinaryStream ps 4 fis)
+    (.setString ps 5 answer)
     (.executeUpdate ps)
     (.close ps)
-    (.close fis)
+    (if fis (.close fis))
     (.close conn)
     ))
 
 
-(defn load-cards-into-db [deck-id path card-pairs]
-  (doseq [[name image-file] (partition 2 card-pairs)]
-    (let [image-data (read-file (str path image-file))
-          ]
+(defn load-cards-into-db [deck-id path card-pairs type]
+  (doseq [[name answer-data] (partition 2 card-pairs)]
       ; This was failing to load files around 70k and higher
      ; quiz.db.core/insert-card!
-    (load-card (str path image-file)
-                                {:deck_id    deck-id,
-                                :name       name
-                                :grouping   nil
-                                :image_data image-data}
-                              ))))
+    (load-card deck-id type path name answer-data nil )))
 
 (defn load-deck [path]
-  (let [{:keys [name image-file cards]}
+  (let [{:keys [name image-file cards type]}
         ; the try catch mostly helps me see the issue is in the deck.clj file, and not
         ; my own surrounding source code.
         (try (read-string (slurp (str path "deck.clj")))
-             (catch Throwable t (println "Problem reading " path " " (.getMessage t))))]
+             (catch Throwable t (println "Problem reading " path " " (.getMessage t))))
+        deck-type (if (nil? type) "image" type)]
     (if (and name image-file cards)
-      (let [deck-id (create-deck name path image-file (count cards))]
-        (load-cards-into-db deck-id path cards)))))
+      (let [deck-id (create-deck name path image-file (/ (count cards) 2) deck-type)]
+        (load-cards-into-db deck-id path cards deck-type)))))
 
 ; run this, which loads the deck images into the database, by typing "lein run load"
-(defn load []
+(defn load-all-decks []
   (quiz.db.core/connect!)
+  (quiz.db.core/delete-outcomes! @quiz.db.core/*conn*)
+  (quiz.db.core/delete-rounds! @quiz.db.core/*conn*)
   (quiz.db.core/delete-decks! @quiz.db.core/*conn*)
   (quiz.db.core/delete-cards! @quiz.db.core/*conn*)
   (load-deck "resources/decks/small/")
   (load-deck "resources/decks/shapes/")
   (load-deck "resources/decks/presidents/")
-  (load-deck "resources/decks/nerf/"))
+  (load-deck "resources/decks/nerf/")
+  (load-deck "resources/decks/clojure/")
+  (println "loading complete.")
+  )

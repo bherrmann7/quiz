@@ -33,7 +33,7 @@
   {:user_id user-id
    :decks   (quiz.db.core/deck-summary-for-user {:user_id user-id} @quiz.db.core/*conn*)
    }]
-    (println decks)
+    (println "user's decks" decks)
     decks
    ))
 
@@ -46,8 +46,14 @@
       (response {:errors {:email "Not found"}}))))
 
 (defn send-card-image [id]
-  (content-type {:status 200
-                 :body   (clojure.java.io/input-stream (:image_data (first (quiz.db.core/get-card-image-data {:id id} @quiz.db.core/*conn*))))} "image/png"))
+  (let [image-data-row (first (quiz.db.core/get-card-image-data {:id id} @quiz.db.core/*conn*))
+        image-data (:image_data image-data-row)
+        ]
+    (if (nil? image-data)
+      (content-type {:status 200 :body "No image data"} "text/html")
+            (content-type {:status 200
+                           :body   (clojure.java.io/input-stream image-data)} "image/png"))
+  ))
 
 (defn send-deck-image [id]
   (content-type {:status 200

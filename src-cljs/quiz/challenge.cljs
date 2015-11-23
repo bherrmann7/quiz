@@ -6,11 +6,39 @@
             [goog.string.format]
             [ajax.core :refer [GET POST]]))
 
-(defn update-decks-round [roundid round]
-  (println "update-decks-round" roundid round)
-  )
+
+(defn fetch-deck [state deck-id]
+  (let [decks (:decks state)]
+  (first (filter #(= (:id %) deck-id) decks))
+  ))
+
+(defn place-deck [deck-id new-deck]
+  (let [
+        decks (:decks @quiz.state/app-state)
+        other-decks (filter #(not= (:id %) deck-id) decks)
+        new-decks (sort-by :id (conj other-decks new-deck))
+    new-state (assoc @quiz.state/app-state :decks new-decks)
+        ]
+    new-state
+  ))
+
+(defn update-deck [deck-id props ]
+  (let [deck (fetch-deck @quiz.state/app-state deck-id)
+        is_round_completed (if (= (:card_count deck) (:last_round_total props)) "Y" "N")
+        deck-rc (assoc deck :is_round_completed is_round_completed)
+        ]
+    (u/l "props " props)
+    (u/l "deck before " deck)
+    (reset! quiz.state/app-state (place-deck deck-id (conj deck-rc props)))
+    (u/l "deck after " (fetch-deck @quiz.state/app-state deck-id))
+    ))
 
 (defn handle-next-challenge [ch]
+  (u/l "ch " ch)
+    (update-deck (:deck_id ch)
+                 { :last_round_correct (:cards_correct ch)
+                   :your_rounds (:round ch)
+                  :last_round_total (:cards_completed ch)})
     (swap! quiz.state/app-state assoc :challenge ch)
     )
 
@@ -23,22 +51,16 @@
         "red"
         "black"))))
 
-(defn deck-inc-coutner [state deck-id last-answer-correct round]
-  (let [decks (:decks state)
-        deck (first (filter #(= (:id %) deck-id) decks))
-        other-decks (filter #(not= (:id %) deck-id) decks)
-        total_challenges (inc (:total_challenges deck))
+(defn deck-inc-coutner [state deck-id last-answer-correct cards_completed]
+  (let [
+        deck (fetch-deck state deck-id)
         was_correct_challenges (if (nil? (:correct_challenges deck)) 0 (:correct_challenges deck))
-        correct_challenges (if last-answer-correct (inc was_correct_challenges) was_correct_challenges)
-        deck2 (update-in deck [:last_round_total] inc)
-        deck3 (if last-answer-correct (update-in deck2 [:last_round_correct] inc ) deck2)
-        deck4 (assoc deck3 :round round :is_round_completed false)
-        new-deck (assoc deck4 :total_challenges total_challenges :correct_challenges correct_challenges)
-        new-decks (sort-by :id (conj other-decks new-deck))
-        new-state (assoc state :decks new-decks)
-  ]
-  new-state
-  ))
+        ]
+    (place-deck deck-id  (assoc deck
+                           :total_challenges   (inc (:total_challenges deck))
+                            :correct_challenges (if last-answer-correct (inc was_correct_challenges) was_correct_challenges)
+                            )
+  )))
 
 (defn do-check-answer [user-choice]
   (let [challenge (:challenge @quiz.state/app-state)
@@ -46,9 +68,10 @@
         round_id (:round_id challenge)
         correct_card_id (:correct_card_id challenge)
         chosen_id (second (first (filter #(= (first %) user-choice ) (:choices challenge ) )))
-        last (assoc challenge :user-choice user-choice)]
+        last (assoc challenge :user-choice user-choice)
+        cards_completed (:cards_completed challenge)]
     (swap! quiz.state/app-state assoc :last last :challenge {:loading true})
-    (swap! quiz.state/app-state deck-inc-coutner deck_id (= correct_card_id chosen_id) (:round challenge) )
+    (swap! quiz.state/app-state deck-inc-coutner deck_id (= correct_card_id chosen_id) (:round challenge)  cards_completed )
   (POST (str js/context "/next-challenge")
         {:headers       {"Accept" "application/transit+json"}
          :params        {:round_id round_id :deck_id deck_id :card_id correct_card_id :chosen_id chosen_id }
@@ -78,8 +101,12 @@
   ))
 
 (defn show-choices [challenge image choices]
-  [:div {:style {:float "left" :min-width 300 :width 200}}  ;{:display "inline-block"}}
-   [:img {:width 200 :src (str js/context "/card-image/" image)}]
+  [:div {:style {:float "left" :min-width 300 :width 200 :padding "10px"}}  ;{:display "inline-block"}}
+   (if (:answer challenge)
+     [:div (:answer challenge) [:br][:br][:br] ]
+     [:img {:width 200 :src (str js/context "/card-image/" image)}]
+     )
+
    [:p]
    (quiz-item 1 choices)
    [:p nil]
@@ -101,14 +128,17 @@
 
 (defn show-last [last]
   (let [{:keys [correct_card_id user-choice]} last
-        style-correct {:float "left" :padding "15px" :border "2px solid #B2FFB2"}
-        style-with-error {:float "left" :padding "15px" :border "2px solid pink"}
+        style-correct {:float "left" :padding "15px"  :width 200 :border "2px solid #B2FFB2"}
+        style-with-error {:float "left" :padding "15px"  :width 200 :border "2px solid pink"}
         choices (:choices last)
         correct-choice (ffirst (filter #(= (second %) correct_card_id ) choices ))
         style-use (if (= correct-choice user-choice) style-correct style-with-error)
         ]
     [:div {:width 500 :style style-use}
-     [:img {:width 200 :src (str js/context "/card-image/" correct_card_id) :className "lastimage"}]
+     (if (:answer last)
+       [:div (:answer last) [:br][:br][:br] ]
+       [:img {:width 200 :src (str js/context "/card-image/" correct_card_id  :className "lastimage")}]
+       )
      [:br]
      (last-item 1 choices correct-choice user-choice)
      (last-item 2 choices correct-choice user-choice)
