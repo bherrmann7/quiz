@@ -10,11 +10,9 @@
                                :type #{{:id String}}}]})
 
 (defapi service-routes
-  (ring.swagger.ui/swagger-ui
-   "/swagger-ui")
+  (ring.swagger.ui/swagger-ui "/swagger-ui" :api-url "/swagger-docs")
   ;JSON docs available at the /swagger.json route
-  (swagger-docs
-   {:info {:title "Quiz API"}})
+  (swagger-docs {:info {:title "Quiz API"}})
   (context* "/api" []
             :tags ["quiz tag"]
 

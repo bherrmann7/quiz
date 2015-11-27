@@ -6,6 +6,7 @@
             [ring.util.response :refer [response status content-type]]
             [clojure.java.io :as io]
             [buddy.hashers :as hashers])
+  (:use [taoensso.timbre :only [trace debug info warn error fatal]])
   (:use  [quiz.app.main])
   (:import (java.sql BatchUpdateException)))
 
@@ -19,7 +20,7 @@
   (let [x (try
             (quiz.db.core/create-user! (hash-password (select-keys (:params req) [:email :password])) @quiz.db.core/*conn*)
             (catch BatchUpdateException e
-              (println (.getMessage e))
+              (error (.getMessage e))
               (if (.contains (.getMessage e) "@")
                 (response {:errors {:email "Email already in use"}}))))]
     (if (= x 1)
@@ -30,12 +31,9 @@
 
 (defn deck-summary [user-id]
   (let [decks
-  {:user_id user-id
-   :decks   (quiz.db.core/deck-summary-for-user {:user_id user-id} @quiz.db.core/*conn*)
-   }]
-    (println "user's decks" decks)
-    decks
-   ))
+        {:user_id user-id
+         :decks   (quiz.db.core/deck-summary-for-user {:user_id user-id} @quiz.db.core/*conn*)}]
+    decks))
 
 (defn login-req [email password {session :session}]
   (let [some-user (first (quiz.db.core/get-user {:email email} @quiz.db.core/*conn*))]
@@ -47,13 +45,11 @@
 
 (defn send-card-image [id]
   (let [image-data-row (first (quiz.db.core/get-card-image-data {:id id} @quiz.db.core/*conn*))
-        image-data (:image_data image-data-row)
-        ]
+        image-data (:image_data image-data-row)]
     (if (nil? image-data)
       (content-type {:status 200 :body "No image data"} "text/html")
-            (content-type {:status 200
-                           :body   (clojure.java.io/input-stream image-data)} "image/png"))
-  ))
+      (content-type {:status 200
+                     :body   (clojure.java.io/input-stream image-data)} "image/png"))))
 
 (defn send-deck-image [id]
   (content-type {:status 200

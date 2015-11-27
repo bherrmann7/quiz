@@ -1,7 +1,5 @@
 # Quiz
 
-# THIS PROJECT IS A WORK IN PROGRESS - IE.  Its not working yet
-
 A ClojureScript/Clojure application which presents the user with an image and then 5 choices.
 For example, a presidential deck would show a president and ask the user to choose the correct name.
 
@@ -9,10 +7,9 @@ For example, a presidential deck would show a president and ask the user to choo
 
  - create mysql database
  - edit profiles.clj to add database schema/user/password information
- - run "lein run load" - to load presidents and shapes into database
+ - run "lein run load-all-decks" - to load the sample decks into the databse
  - lein figwheel
  - lein run (to start web server)
-
 
 ## History
 
@@ -22,3 +19,7 @@ project into a WAR file.   So I restarted it using luminusweb.net with the +war 
 ## License
 
 Copyright © 2015 Bob Herrmann
+
+The sample decks are lifted from various places - I do not have the copyrights for any of those images.   The presidents
+were take from wikipedia.   The other images from google image searches.
+

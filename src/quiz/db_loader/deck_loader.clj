@@ -2,13 +2,14 @@
   (:require [quiz.db.core]
             [ring.util.response :refer [response status]]
             [clojure.java.io :as io])
+  (:use [taoensso.timbre :only [trace debug info warn error fatal]])
   (:import (java.sql BatchUpdateException DriverManager)
            (java.io FileInputStream)))
 
 (defn create-deck [name path image-file card-count type]
   (quiz.db.core/insert-deck! {:name name  :image_data (new FileInputStream (str path image-file)) :card_count card-count
-                              :type type }
-                                                 @quiz.db.core/*conn*)
+                              :type type}
+                             @quiz.db.core/*conn*)
   (:id (some #(when (= name (:name %)) %) (quiz.db.core/get-decks @quiz.db.core/*conn*))))
 
 (defn read-file [file-path]
@@ -19,13 +20,11 @@
       buffer)))
 
 (defn load-card [deck-id type path name answer-data grouping]
-  (let [
-        conn  (DriverManager/getConnection (environ.core/env :database-url))
+  (let [conn  (DriverManager/getConnection (environ.core/env :database-url))
         ps (.prepareStatement conn (str "insert into cards (id, deck_id, name, grouping, enabled, image_data, answer)"
-                                                  " values (null,     ?,    ?,       ?,        1,         ?,       ?)"))
+                                        " values (null,     ?,    ?,       ?,        1,         ?,       ?)"))
         fis (if (= type "image") (new FileInputStream (str path answer-data)))
-        answer (if (= type "text") answer-data)
-        ]
+        answer (if (= type "text") answer-data)]
     (.setInt ps 1 deck-id)
     (.setString ps 2 name)
     (.setString ps 3 nil)
@@ -34,22 +33,20 @@
     (.executeUpdate ps)
     (.close ps)
     (if fis (.close fis))
-    (.close conn)
-    ))
-
+    (.close conn)))
 
 (defn load-cards-into-db [deck-id path card-pairs type]
   (doseq [[name answer-data] (partition 2 card-pairs)]
-      ; This was failing to load files around 70k and higher
+      ; This was failing to load files around 70k and higher using the yesql as the loader
      ; quiz.db.core/insert-card!
-    (load-card deck-id type path name answer-data nil )))
+    (load-card deck-id type path name answer-data nil)))
 
 (defn load-deck [path]
   (let [{:keys [name image-file cards type]}
         ; the try catch mostly helps me see the issue is in the deck.clj file, and not
         ; my own surrounding source code.
         (try (read-string (slurp (str path "deck.clj")))
-             (catch Throwable t (println "Problem reading " path " " (.getMessage t))))
+             (catch Throwable t (error "Problem reading " path " " (.getMessage t))))
         deck-type (if (nil? type) "image" type)]
     (if (and name image-file cards)
       (let [deck-id (create-deck name path image-file (/ (count cards) 2) deck-type)]
@@ -67,5 +64,5 @@
   (load-deck "resources/decks/presidents/")
   (load-deck "resources/decks/nerf/")
   (load-deck "resources/decks/clojure/")
-  (println "loading complete.")
-  )
+  (info "loading complete.")
+  (System/exit 0))
