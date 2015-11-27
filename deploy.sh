@@ -1,3 +1,3 @@
 lein uberjar
 lein ring uberwar
-scp target/quiz.war jadn.com:/jadn/quiz.war
+scp target/quiz.war studio.local:/jadn/quiz.war
