@@ -5,7 +5,6 @@
         "Aron B." "aron.jpg"
         "Bob Herrmann" "bob.jpg"
         "Kim K." "Kim.jpg"
-        ;"Karen"   "karen.jpg"
         "Matt O." "matt.jpg"
         "Paul B." "paulb.jpg"
         "Paul D." "paul.jpg"

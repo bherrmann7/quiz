@@ -1,0 +1,1 @@
+alter table cards modify column name varchar(80);
