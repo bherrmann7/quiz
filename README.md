@@ -3,6 +3,10 @@
 A ClojureScript/Clojure application which presents the user with an image and then 5 choices.
 For example, a presidential deck would show a president and ask the user to choose the correct name.
 
+# The Story
+
+I wanted to tinker with clojure and clojurescript.  I thought a quiz app would be good for learning stuff.
+
 # how to initialize and run project (as a developer)
 
  - create mysql database

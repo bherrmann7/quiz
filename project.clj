@@ -37,7 +37,8 @@
                  [cljs-ajax "0.3.14"]
                  [metosin/compojure-api "0.23.1"]
                  [metosin/ring-swagger-ui "2.1.2"]
-                 [org.immutant/web "2.1.0"]]
+                 [org.immutant/web "2.1.0"]
+                 ]
 
   :min-lein-version "2.0.0"
   :uberjar-name "quiz.jar"
@@ -49,6 +50,7 @@
   :plugins [[lein-environ "1.0.0"]
             [migratus-lein "0.1.7"]
             [lein-cljfmt "0.3.0"]
+            [lein-kibit "0.1.2"]
             [lein-cljsbuild "1.0.6"]
             [lein-ring "0.9.6"]]
   :ring

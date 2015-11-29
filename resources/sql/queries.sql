@@ -50,7 +50,7 @@ insert into outcomes ( deck_id, user_id, round_id, correct_card_id, chosen_card_
 values ( :deck_id, :user_id, :round_id, :correct_card_id, :chosen_card_id, :correct, now() )
 
 -- name: current-round
-select c.id,c.name, r.user_id, r.id round_id, r.round, o.correct, c.answer  from cards c
+select c.id,c.name, r.user_id, r.id round_id, r.round, o.correct, c.answer, c.grouping  from cards c
 join rounds r on c.deck_id = r.deck_id and r.user_id = :user_id
 left outer join outcomes o on o.round_id = r.id and o.correct_card_id = c.id
 where r.id = (select max(id) from rounds where deck_id = :deck_id and user_id = :user_id)

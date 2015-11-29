@@ -128,8 +128,8 @@
 
 (defn show-last [last]
   (let [{:keys [correct_card_id user-choice]} last
-        style-correct {:float "left" :padding "15px"  :width 200 :border "2px solid #B2FFB2"}
-        style-with-error {:float "left" :padding "15px"  :width 200 :border "2px solid pink"}
+        style-correct {:float "left" :padding "15px"  :width 300 :border "2px solid #B2FFB2"}
+        style-with-error {:float "left" :padding "15px"  :width 300 :border "2px solid pink"}
         choices (:choices last)
         correct-choice (ffirst (filter #(= (second %) correct_card_id ) choices ))
         style-use (if (= correct-choice user-choice) style-correct style-with-error)

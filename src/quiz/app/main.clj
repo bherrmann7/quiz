@@ -31,7 +31,8 @@
         ; call myself
           (recur deck_id round_id card_id chosen_id {:session {:user_id user_id}}))
         (let [correct-entry [(:name next-correct) (:id next-correct)]
-              fake-four (map #(vector (:name %) (:id %)) (take 4 (filter #(not= (:id %) (:id next-correct)) current-round)))
+              correct-group (:grouping next-correct)
+              fake-four (map #(vector (:name %) (:id %)) (take 4 (filter #(and (= (:grouping %) correct-group) (not= (:id %) (:id next-correct))) current-round)))
               choices (shuffle (conj fake-four correct-entry))
               message {:deck_id         deck_id
                        :round_id        (:round_id (first current-round))

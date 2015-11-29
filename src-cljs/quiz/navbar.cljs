@@ -10,8 +10,8 @@
   (swap! s/app-state dissoc :challenge )
   )
 
-#_(defn do-about []
-  (println "You should do-about!")
+(defn do-about []
+
   )
 
 (defn page-at []
@@ -33,16 +33,13 @@
         [:li {:class (if (= :decks (page-at)) "active")}
          [:a {:on-click #(do-decks)} "Decks"]]
         )
-
-      #_(if (not= (page-at) :login)
-        [:li {:class (if (= :about (page-at)) "active")}
-         [:a {:on-click #(do-about) } "About"]]
-        )
       ]
 
      (if (not= :login (page-at))
        [:ul.nav.navbar-nav.pull-right
-        [:li [:a {:on-click #(do-logout)} "Logout"]]]
+        [:li [:a {:on-click #(do-logout)} "Logout"]]
+        ;[:li {:class (if (= :about (page-at)) "active")}
+        ; [:a {:on-click #(do-about) } "About"]]
+        ]
        )
-
      ]]])

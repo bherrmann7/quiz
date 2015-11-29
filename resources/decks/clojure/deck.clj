@@ -4,7 +4,9 @@
 {:name       "Clojure Top 100"
  :image-file "clojure.png"
  :type "text"
+ :grouping (fn [card cards] (if (= 1 (count (first card))) "oper" "func"))
  :cards
+
              [
 "defn" "Define a function at the top level."
 "let" "Bind names in a local scope."
