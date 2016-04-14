@@ -7,7 +7,7 @@ For example, a presidential deck would show a president and ask the user to choo
 
 I wanted to tinker with clojure and clojurescript.  I thought a quiz app would be good for learning stuff.
 
-# how to initialize and run project (as a developer)
+# How to Initialize and Run Project (as a developer)
 
  - create mysql database
  - edit profiles.clj to add database schema/user/password information
