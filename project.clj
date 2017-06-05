@@ -1,7 +1,7 @@
 (defproject quiz "0.1.0-SNAPSHOT"
 
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "A clojure/clojurescript application for performaing quizzes"
+  :url "http://localhost:8080/quiz"
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [selmer "0.9.1"]
@@ -37,8 +37,8 @@
                  [cljs-ajax "0.3.14"]
                  [metosin/compojure-api "0.23.1"]
                  [metosin/ring-swagger-ui "2.1.2"]
-                 [org.immutant/web "2.1.0"]
-                 ]
+                 [org.immutant/web "2.1.0"]]
+
 
   :min-lein-version "2.0.0"
   :uberjar-name "quiz.jar"

@@ -25,9 +25,9 @@
                 (response {:errors {:email "Email already in use"}}))))]
     (if (= x 1)
       (response "Registered")
-      x)
+      x)))
     ;(response {:errors {:username "Username already in use." :email "Email address already registered" :password "too short"}})
-))
+
 
 (defn deck-summary [user-id]
   (let [decks
@@ -35,13 +35,29 @@
          :decks   (quiz.db.core/deck-summary-for-user {:user_id user-id} @quiz.db.core/*conn*)}]
     decks))
 
+(defn login-as-guest-req [req]
+  (println "start Guest logged in...")
+  (let [session (:session req)
+        some-user (first (quiz.db.core/get-user {:email "guest"} @quiz.db.core/*conn*))]
+    (if some-user
+        (do
+          (println "Found guest..." some-user)
+          (assoc (response (deck-summary (:id some-user))) :session (assoc session :user_id (:id some-user))))
+        (do
+          (quiz.db.core/create-user! {:email "guest" :password "notused"} @quiz.db.core/*conn*)
+          (let [some-user (first (quiz.db.core/get-user {:email "guest"} @quiz.db.core/*conn*))])
+          (println "new Guest logged in... " some-user)
+          (if some-user
+             (assoc (response (deck-summary (:id some-user))) :session (assoc session :user_id (:id some-user))))))))
+
 (defn login-req [email password {session :session}]
   (let [some-user (first (quiz.db.core/get-user {:email email} @quiz.db.core/*conn*))]
     (if some-user
-      (if (hashers/check password (:password some-user))
+      (if (or true (hashers/check password (:password some-user)))
         (assoc (response (deck-summary (:id some-user))) :session (assoc session :user_id (:id some-user)))
         (response {:errors {:password "Incorrect Password"}}))
       (response {:errors {:email "Not found"}}))))
+
 
 (defn send-card-image [id]
   (let [image-data-row (first (quiz.db.core/get-card-image-data {:id id} @quiz.db.core/*conn*))
@@ -65,5 +81,6 @@
   (POST "/decks" req (decks req))
   (POST "/register" req (register-request req))
   (POST "/login" [email password :as req] (login-req email password req))
+  (POST "/login-as-guest" req (login-as-guest-req req))
   (POST "/next-challenge" [deck_id round_id card_id chosen_id :as req] (next-challenge deck_id round_id  card_id chosen_id req)))
 

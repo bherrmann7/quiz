@@ -42,6 +42,5 @@
          "George Bush", "40_150.gif"
          "Bill Clinton", "41_150.gif"
          "George W. Bush", "42_150.gif"
-         "Barack Obama", "43_150.gif"
-         ]
- }
+         "Barack Obama", "43_150.gif"]}
+

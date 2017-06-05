@@ -24,7 +24,8 @@
                         {:path "quiz.log"
                          :max-size (* 512 1024)
                          :backlog 10})}})
-
+  (timbre/info (str "Trying to connect to" (env :quiz-database-url)))
+  (timbre/info (str "env has " (System/getenv "QUIZ_DATABASE_URL")))
   (if (env :dev) (parser/cache-off!))
   (db/connect!)
   (timbre/info (str

@@ -23,7 +23,7 @@
    *conn*
    (assoc
     pool-spec
-    :jdbc-url (env :database-url))))
+    :jdbc-url (env :quiz-database-url))))
 
 (defn disconnect! []
   (conman/disconnect! *conn*))

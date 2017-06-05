@@ -10,8 +10,23 @@ I wanted to tinker with clojure and clojurescript.  I thought a quiz app would b
 # How to Initialize and Run Project (as a developer)
 
  - create mysql database
+      ON OSX
+      $ brew install mysql
+      $ mysql.server start
+      $ mysql -uroot
+      mysql> create database quiz;
+      mysql> GRANT ALL ON quiz.* TO 'quiz'@'localhost' identified by 'quiz';
+      ## Not Needed ...  TODO ... only production? $ export QUIZ_DATABASEURL="
+      
  - edit profiles.clj to add database schema/user/password information
- - run "lein run load-all-decks" - to load the sample decks into the databse
+     :profiles/dev  {:env {:quiz-database-url "jdbc:mysql://localhost:3306/quiz?user=quiz&password=quiz"}}
+   
+ - create initial schema
+      $ lein run migrate
+        
+ - load initial decks
+      $ lein run load-all-decks # to load the sample decks into the databse
+      
  - lein figwheel
  - lein run (to start web server)
 

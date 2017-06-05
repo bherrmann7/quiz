@@ -49,7 +49,8 @@ update rounds set completed_time = now() where deck_id = deck_id and user_id = :
 insert into outcomes ( deck_id, user_id, round_id, correct_card_id, chosen_card_id, correct, occurred )
 values ( :deck_id, :user_id, :round_id, :correct_card_id, :chosen_card_id, :correct, now() )
 
--- name: current-round
+-- name: cards-in-current-round
+-- grabs all the cards in the current round along with their outcomes
 select c.id,c.name, r.user_id, r.id round_id, r.round, o.correct, c.answer, c.grouping  from cards c
 join rounds r on c.deck_id = r.deck_id and r.user_id = :user_id
 left outer join outcomes o on o.round_id = r.id and o.correct_card_id = c.id
@@ -64,7 +65,7 @@ SELECT
     COUNT(o.deck_id) total_challenges,
     cast(SUM(o.correct) as SIGNED) correct_challenges,
      CASE
-        WHEN o.round_id IS NULL
+        WHEN count(o.round_id) IS NULL
         THEN 'Y'
         WHEN (
                 SELECT

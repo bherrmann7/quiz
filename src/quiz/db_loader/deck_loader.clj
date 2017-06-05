@@ -20,7 +20,7 @@
       buffer)))
 
 (defn load-card [deck-id type path name answer-data group]
-  (let [conn  (DriverManager/getConnection (environ.core/env :database-url))
+  (let [conn  (DriverManager/getConnection (environ.core/env :quiz-database-url))
         ps (.prepareStatement conn (str "insert into cards (id, deck_id, name, grouping, enabled, image_data, answer)"
                                         " values           (null,     ?,    ?,       ?,        1,         ?,       ?)"))
         fis (if (= type "image") (new FileInputStream (str path answer-data)))
@@ -41,7 +41,7 @@
     (let [group (if-not (nil? grouping) ((eval grouping) [name answer-data] card-pairs))]
       ; This was failing to load files around 70k and higher using the yesql as the loader
      ; quiz.db.core/insert-card!
-    (load-card deck-id type path name answer-data group))))
+      (load-card deck-id type path name answer-data group))))
 
 (defn load-deck [path]
   (let [{:keys [name image-file cards type grouping]}
