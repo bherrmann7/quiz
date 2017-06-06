@@ -80,7 +80,7 @@
 
 
 
-(defn quiz-item [pos choices]
+(defn quiz-item-classic [pos choices]
   (if (> pos (count choices)) ""
    (let [render-choice (first (nth choices (dec pos)))
          user-choice nil]
@@ -88,6 +88,20 @@
           :style     {:color (choose-color render-choice "correct-choice" user-choice)}
           :onClick   #(do-check-answer render-choice)
           :ref       (str "ans" pos)} nil render-choice])))
+
+(defn quiz-item [pos choices]
+  (if (> pos (count choices)) ""
+                              (let [render-choice (first (nth choices (dec pos)))
+                                    user-choice nil]
+                                [:div
+                                   [:input {:type "radio" :name "choice" :value (str "ans" pos) :onClick   #(do-check-answer render-choice)}]
+                                   "   "
+                                   [:a {:className "choice"
+                                               :style     {:color (choose-color render-choice "correct-choice" user-choice)}
+                                               :onClick   #(do-check-answer render-choice)
+                                               :ref       (str "ans" pos) } render-choice]])))
+
+
 
 (defn last-item [pos choices correct-choice user-choice]
   (if (> pos (count choices)) ""
@@ -103,20 +117,21 @@
 (defn show-choices [challenge image choices]
   [:div {:style {:float "left" :min-width 300 :width 200 :padding "10px"}}  ;{:display "inline-block"}}
    (if (:answer challenge)
-     [:div (:answer challenge) [:br][:br][:br]]
+     [:div [:b "Q:"]
+      [:div {:style { :padding "0px 0px 0px 20px"}} (:answer challenge) [:br][:br]]]
      [:img {:width 200 :src (str js/context "/card-image/" image)}])
-
-
-   [:p]
-   (quiz-item 1 choices)
-   [:p nil]
-   (quiz-item 2 choices)
-   [:p nil]
-   (quiz-item 3 choices)
-   [:p nil]
-   (quiz-item 4 choices)
-   [:p nil]
-   (quiz-item 5 choices)])
+   [:b "A:"]
+   [:div {:style { :padding "0px 0px 0px 20px"}}
+         [:p]
+         (quiz-item 1 choices)
+         [:p nil]
+         (quiz-item 2 choices)
+         [:p nil]
+         (quiz-item 3 choices)
+         [:p nil]
+         (quiz-item 4 choices)
+         [:p nil]
+         (quiz-item 5 choices)]])
 
 
 (defn stats [challenge]

@@ -78,8 +78,7 @@
         registration-success (:registration-success s)]
 
     [:div.container
-     [:div.jumbotron {:style {:text-align "center"}}
-      [:h1 "Welcome to Quiz"]]
+     [:img {:src "/img/quiz.png" :width "500px"}]
 
      [:div.row
       [:div.col-md-3
