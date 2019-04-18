@@ -3,24 +3,24 @@
             [quiz.state :as s]))
 
 (defn do-logout []
-  (set! (.-location js/window) (str js/context "/"))
-  )
+  (set! (.-location js/window) (str js/context "/")))
+
 
 (defn do-decks []
-  (swap! s/app-state dissoc :challenge )
-  )
+  (swap! s/app-state dissoc :challenge))
 
-(defn do-about []
 
-  )
+(defn do-about [])
+
+
 
 (defn page-at []
-  (let [page
+  (let [page])
   (if (contains? @s/app-state :challenge ) :quiz
     (if (contains? @s/app-state :user_id ) :decks
-      :login))]
+      :login))
   page)
-  )
+
 
 (defn navbar []
   [:div.navbar.navbar-inverse.navbar-fixed-top
@@ -31,15 +31,15 @@
      [:ul.nav.navbar-nav
       (if (not= (page-at) :login)
         [:li {:class (if (= :decks (page-at)) "active")}
-         [:a {:on-click #(do-decks)} "Decks"]]
-        )
-      ]
+         [:a {:on-click #(do-decks)} "Decks"]])]
+
+
 
      (if (not= :login (page-at))
        [:ul.nav.navbar-nav.pull-right
-        [:li [:a {:on-click #(do-logout)} "Logout"]]
+        [:li [:a {:on-click #(do-logout)} "Logout"]]])]]])
         ;[:li {:class (if (= :about (page-at)) "active")}
         ; [:a {:on-click #(do-about) } "About"]]
-        ]
-       )
-     ]]])
+
+
+

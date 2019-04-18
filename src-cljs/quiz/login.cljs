@@ -78,7 +78,7 @@
         registration-success (:registration-success s)]
 
     [:div.container
-     [:img {:src "/img/quiz.png" :width "500px"}]
+     [:img {:src (str js/context "/img/quiz.png") :width "500px"}]
 
      [:div.row
       [:div.col-md-3
