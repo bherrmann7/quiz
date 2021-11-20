@@ -16,7 +16,7 @@ I wanted to tinker with clojure and clojurescript.  I thought a quiz app would b
       $ mysql -uroot
       mysql> create database quiz;
       mysql> GRANT ALL ON quiz.* TO 'quiz'@'localhost' identified by 'quiz';
-      ## Not Needed ...  TODO ... only production? $ export QUIZ_DATABASEURL="
+      \## Not Needed ...  TODO ... only production? $ export QUIZ_DATABASEURL="
       
  - edit profiles.clj to add database schema/user/password information
      :profiles/dev  {:env {:quiz-database-url "jdbc:mysql://localhost:3306/quiz?user=quiz&password=quiz"}}
